@@ -1,1 +1,1 @@
-FROM registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce:v13.2.4
+FROM registry.gitlab.com/gitlab-org/build/cng/gitlab-shell:v13.3.0
