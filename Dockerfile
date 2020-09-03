@@ -1,1 +1,8 @@
-FROM registry.gitlab.com/gitlab-org/build/cng/gitlab-shell:v13.3.0
+FROM mr3project/hive3:1.1
+
+USER root
+
+COPY mr3-tez-1.0-assembly.jar /opt/mr3-run/mr3/mr3lib/
+
+WORKDIR /opt/mr3-run
+
