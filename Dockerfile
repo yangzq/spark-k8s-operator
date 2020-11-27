@@ -6,7 +6,10 @@ RUN yum localinstall -y http://repo.mysql.com/mysql-community-release-el6-7.noar
     && yum install -y mysql-community-server \
     && echo "HOSTNAME=\"$(hostname -f)\"" > /etc/sysconfig/network \
     && yum clean all \
-    && rm -f /opt/mr3-run/run-all.sh
+    && rm -f /opt/mr3-run/run-all.sh \
+    && rm -rf /opt/mr3-run/conf \
+    && rm -rf /opt/mr3-run/key \
+    && rm -f /opt/mr3-run/env.sh
 
 ENV JAVA_HOME /etc/alternatives/jre
 ENV PATH="/etc/alternatives/jre/bin:${PATH}"
