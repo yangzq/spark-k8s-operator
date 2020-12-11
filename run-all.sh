@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-exec /usr/sbin/init
+/usr/sbin/init
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
