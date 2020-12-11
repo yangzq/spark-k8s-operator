@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-/usr/sbin/init
-
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
 chown -R hive:hive /opt/mr3-run
@@ -76,4 +74,5 @@ echo "starting Metastore and HiveServer2"
 sudo -E -u hive bash -c '/opt/mr3-run/hive/metastore-service.sh start --init-schema --localprocess' > $DIR/metastore.out 2>&1 &
 sudo -E -u hive bash -c '/opt/mr3-run/hive/hiveserver2-service.sh start --localprocess' > $DIR/hiveserver2.out 2>&1 &
 
+exec /usr/sbin/init
 
