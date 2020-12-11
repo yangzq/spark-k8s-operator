@@ -23,7 +23,7 @@ chown -R ats:ats /opt/mr3-run/ats
 #yum install -y wget
 
 #echo "HOSTNAME=\"$(hostname -f)\"" > /etc/sysconfig/network
-systemctl start mysqld
+#systemctl start mysqld
 
 mysqladmin -uroot password passwd
 mysql -uroot -ppasswd -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'passwd';"
@@ -73,6 +73,4 @@ done
 echo "starting Metastore and HiveServer2"
 sudo -E -u hive bash -c '/opt/mr3-run/hive/metastore-service.sh start --init-schema --localprocess' > $DIR/metastore.out 2>&1 &
 sudo -E -u hive bash -c '/opt/mr3-run/hive/hiveserver2-service.sh start --localprocess' > $DIR/hiveserver2.out 2>&1 &
-
-exec /usr/sbin/init
 
