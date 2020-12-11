@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+exec /usr/sbin/init
+
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
 chown -R hive:hive /opt/mr3-run
