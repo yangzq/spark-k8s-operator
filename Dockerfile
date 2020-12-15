@@ -28,4 +28,5 @@ RUN chown hive:hive /opt/mr3-run/run-all.sh \
 WORKDIR /opt/mr3-run
 
 ENTRYPOINT ["/opt/mr3-run/init.sh"]
+CMD ["/opt/mr3-run/run-all.sh"]
 
