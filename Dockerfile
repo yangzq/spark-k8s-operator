@@ -1,32 +1,44 @@
-FROM mr3project/hivemr3-all:1.2
+#
+# Copyright 2018 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
+ARG SPARK_IMAGE=gcr.io/spark-operator/spark:v3.0.0
+FROM ${SPARK_IMAGE}
+
+# Switch to user root so we can add addtional jars and configuration files.
 USER root
 
-RUN yum localinstall -y http://repo.mysql.com/mysql-community-release-el6-7.noarch.rpm \
-    && yum install -y mysql-community-server \
-    && echo "HOSTNAME=\"$(hostname -f)\"" > /etc/sysconfig/network \
-    && yum clean all \
-    && rm -f /opt/mr3-run/run-all.sh \
-    && rm -f /opt/mr3-run/init.sh \
-    && rm -rf /opt/mr3-run/conf \
-    && rm -rf /opt/mr3-run/key \
-    && rm -f /opt/mr3-run/env.sh
+# Setup dependencies for Google Cloud Storage access.
+RUN rm $SPARK_HOME/jars/guava-14.0.1.jar
+ADD https://repo1.maven.org/maven2/com/google/guava/guava/23.0/guava-23.0.jar $SPARK_HOME/jars
+RUN chmod 644 $SPARK_HOME/jars/guava-23.0.jar
+# Add the connector jar needed to access Google Cloud Storage using the Hadoop FileSystem API.
+ADD https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-latest-hadoop2.jar $SPARK_HOME/jars
+RUN chmod 644 $SPARK_HOME/jars/gcs-connector-latest-hadoop2.jar
+ADD https://storage.googleapis.com/spark-lib/bigquery/spark-bigquery-latest.jar $SPARK_HOME/jars
+RUN chmod 644 $SPARK_HOME/jars/spark-bigquery-latest.jar
 
-ENV JAVA_HOME /etc/alternatives/jre
-ENV PATH="/etc/alternatives/jre/bin:${PATH}"
+# Setup for the Prometheus JMX exporter.
+# Add the Prometheus JMX exporter Java agent jar for exposing metrics sent to the JmxSink to Prometheus.
+ADD https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.11.0/jmx_prometheus_javaagent-0.11.0.jar /prometheus/
+RUN chmod 644 /prometheus/jmx_prometheus_javaagent-0.11.0.jar
 
-COPY run-all.sh /opt/mr3-run/run-all.sh
-COPY init.sh /opt/mr3-run/init.sh
-COPY mysql-connector-java-8.0.17.jar /opt/mr3-run/lib/mysql-connector.jar
+USER ${spark_uid}
 
-RUN chown hive:hive /opt/mr3-run/run-all.sh \
-    && chown hive:hive /opt/mr3-run/init.sh \
-    && chown hive:hive /opt/mr3-run/lib/mysql-connector.jar \
-    && chmod +x /opt/mr3-run/run-all.sh \
-    && chmod +x /opt/mr3-run/init.sh
+RUN mkdir -p /etc/metrics/conf
+COPY conf/metrics.properties /etc/metrics/conf
+COPY conf/prometheus.yaml /etc/metrics/conf
 
-WORKDIR /opt/mr3-run
-
-ENTRYPOINT ["/opt/mr3-run/init.sh"]
-CMD ["/opt/mr3-run/run-all.sh"]
-
+ENTRYPOINT ["/opt/entrypoint.sh"]
